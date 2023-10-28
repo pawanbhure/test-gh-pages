@@ -1,0 +1,32 @@
+name: Cypress Tests
+
+on: workflow_dispatch
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Install NPM dependencies, cache them correctly
+      # and run all Cypress tests
+      - name: os info
+        run: |
+          cat /etc/*release
+          apt list --installed
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          build: npm run build
+          start: npm start
+      - name: Upload Cypress Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cypress-results
+          path: cypress/videos
+          if-no-files-found: error
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.PAT }}
+          publish_dir: cypress/videos   
